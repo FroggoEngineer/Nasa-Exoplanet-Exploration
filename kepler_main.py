@@ -247,3 +247,20 @@ enc_df["X"] = enc_data[:,0]
 enc_df["y"] = enc_data[:,1]
 
 sns.lmplot(x='X', y='y', hue = 'koi_disposition', data=enc_df, scatter_kws={'alpha':0.3}, size=12)
+
+
+# IsolationForest on 'Confirmed', run on whole dataset
+data_iso_con = data_split_merged
+test_iso_con = data_split_merged
+from sklearn.ensemble import IsolationForest
+iso_con = IsolationForest(random_state=0, n_estimators=300,verbose=1, n_jobs=16, contamination=0.5, max_features=1)
+iso_con.fit(data_iso_con[data_iso_con.columns[2:]])
+iso_result= iso_con.predict(test_iso_con[test_iso_con.columns[2:]])
+
+result_series = pd.Series(iso_result)
+test_iso_3d = enc_df_3d
+test_iso_3d.reset_index(inplace=True, drop=True)
+test_iso_3d["Isolation"] = result_series
+classes = [('b', -1, 0.3), ('r', 1, 0.8)]
+create_3d_plot(test_iso_3d,'Isolation',(16,12),classes)
+# IsolationsForest on 'False Positive', compare on 'FP_CONFIRMED'
