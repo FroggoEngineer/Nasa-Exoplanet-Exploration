@@ -249,9 +249,10 @@ enc_df["y"] = enc_data[:,1]
 sns.lmplot(x='X', y='y', hue = 'koi_disposition', data=enc_df, scatter_kws={'alpha':0.3}, size=12)
 
 
+print("----------------- ISOLATION  FOREST -----------------------")
 # IsolationForest on 'Confirmed', run on whole dataset
-data_iso_con = data_split_merged
-test_iso_con = data_split_merged
+data_iso_con = data_split_merged 
+test_iso_con = data_iso_con
 from sklearn.ensemble import IsolationForest
 iso_con = IsolationForest(random_state=0, n_estimators=300,verbose=1, n_jobs=16, contamination=0.5, max_features=1)
 iso_con.fit(data_iso_con[data_iso_con.columns[2:]])
@@ -264,3 +265,22 @@ test_iso_3d["Isolation"] = result_series
 classes = [('b', -1, 0.3), ('r', 1, 0.8)]
 create_3d_plot(test_iso_3d,'Isolation',(16,12),classes)
 # IsolationsForest on 'False Positive', compare on 'FP_CONFIRMED'
+
+
+
+print("------------------ SUPPORT VECTOR MACHINE ------------------")
+from sklearn.model_selection import train_test_split
+from sklearn import datasets
+from sklearn import svm
+from sklearn.metrics import accuracy_score
+
+X = data_split_merged[data_split_merged.columns[2:]]
+y = data_split_merged['koi_disposition'].astype("category").cat.codes
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+clf = svm.SVC()
+clf.fit(X_train, y_train.values.ravel())
+
+pred = clf.predict(X_test)
+accuracy_score(y_test, pred)
+
